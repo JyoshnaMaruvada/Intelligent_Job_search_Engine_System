@@ -7,7 +7,8 @@ import streamlit as st
 # -----------------------------
 # LOAD DATA
 # -----------------------------
-df = pd.read_csv("/Users/jyoshnamaruvada/Desktop/MyProjects/intelligent_job_search_system/processed_jobs.csv")
+# df = pd.read_csv("/Users/jyoshnamaruvada/Desktop/MyProjects/intelligent_job_search_system/processed_jobs.csv")
+df = pd.read_csv("processed_jobs.csv")
 
 
 df['combined_text'] = df['clean_title'] + " " + df['clean_desc']
