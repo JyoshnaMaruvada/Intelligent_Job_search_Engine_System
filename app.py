@@ -28,40 +28,42 @@ def search_jobs(query):
     top_indices = similarity.argsort()[-5:][::-1]
     return df.iloc[top_indices][['company', 'jobtitle', 'location']]
 
-# =========================
-# STREAMLIT UI
-# =========================
-# =========================
+## =========================
 # STREAMLIT UI
 # =========================
 st.title("🔍 Intelligent Job Search System")
 
 query = st.text_input("Enter job search:")
 
-# Default selected query
+# Default
 selected_query = query
 
-# -----------------------------
-# LIVE SUGGESTIONS (while typing)
-# -----------------------------
 if query:
-    suggestions = autocomplete(query)
+    # -----------------------------
+    # STEP 1: CORRECT QUERY FIRST
+    # -----------------------------
+    corrected = correct_query(query)
+    st.write("✅ Corrected Query:", corrected)
+
+    # -----------------------------
+    # STEP 2: SHOW SUGGESTIONS BELOW
+    # -----------------------------
+    suggestions = autocomplete(corrected)
 
     if suggestions:
         st.write("💡 Suggestions (click one):")
 
         for s in suggestions:
-            if st.button(s):
+            if st.button(s, key=s):
                 selected_query = s   # user clicked suggestion
+    else:
+        st.write("No suggestions found")
 
-# -----------------------------
-# FINAL PROCESSING
-# -----------------------------
-if selected_query:
-    corrected = correct_query(selected_query)
-
-    st.write("✅ Corrected Query:", corrected)
+    # -----------------------------
+    # STEP 3: SEARCH RESULTS
+    # -----------------------------
+    final_query = correct_query(selected_query)
 
     st.write("📊 Top Jobs:")
-    results = search_jobs(corrected)
+    results = search_jobs(final_query)
     st.dataframe(results)
