@@ -8,7 +8,12 @@ from rapidfuzz import process, fuzz
 df = pd.read_csv("processed_jobs.csv")
 
 titles = df['clean_title'].dropna().str.lower().tolist()
-title_freq = Counter(titles)
+companies = df['company'].dropna().str.lower().tolist()
+
+# 🔥 Combine both
+combined_list = titles + companies
+
+title_freq = Counter(combined_list)
 
 # =========================
 # AUTOCOMPLETE
@@ -23,7 +28,6 @@ def autocomplete(query, top_n=5):
         limit=top_n
     )
 
-    # filter weak matches
     suggestions = [match[0] for match in matches if match[1] > 60]
 
     return suggestions
