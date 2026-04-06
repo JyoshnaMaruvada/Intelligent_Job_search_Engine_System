@@ -81,14 +81,7 @@ def correct_query(query):
 title_freq = Counter(df['clean_title'])
 
 def autocomplete(prefix):
-    prefix_words = prefix.lower().split()
-
-    matches = []
-    for title in title_freq:
-        title_lower = title.lower()
-        if all(word in title_lower for word in prefix_words):
-            matches.append(title)
-
+    matches = [t for t in title_freq if prefix in t]
     matches = sorted(matches, key=lambda x: title_freq[x], reverse=True)
     return matches[:5]
 
@@ -104,6 +97,8 @@ def search_jobs(query):
 # -----------------------------
 # STREAMLIT UI
 # -----------------------------
+st.title("🔍 Intelligent Job Search System")
+
 query = st.text_input("Enter job search:")
 
 if query:
@@ -111,14 +106,10 @@ if query:
     st.write("✅ Corrected Query:", corrected)
 
     st.write("💡 Suggestions:")
-    
-    # 🔥 FIX HERE
-    suggestions = autocomplete(corrected)
-    
+    suggestions = autocomplete(query)
     for s in suggestions:
         st.write("-", s)
 
     st.write("📊 Top Jobs:")
     results = search_jobs(corrected)
     st.dataframe(results)
-    
