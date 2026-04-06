@@ -18,12 +18,22 @@ title_freq = Counter(combined_list)
 # =========================
 # AUTOCOMPLETE
 # =========================
+
+# create combined suggestions
+df['suggestion_text'] = (
+    df['company'].str.lower() + " " + df['clean_title'].str.lower()
+)
+
+suggestions_list = df['suggestion_text'].tolist()
+suggestion_freq = Counter(suggestions_list)
+
+
 def autocomplete(query, top_n=5):
     query = query.lower()
 
     matches = process.extract(
         query,
-        title_freq.keys(),
+        suggestion_freq.keys(),
         scorer=fuzz.token_sort_ratio,
         limit=top_n
     )
