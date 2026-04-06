@@ -1,38 +1,72 @@
+# Auto_Complete.py
+
 import pandas as pd
 from collections import Counter
+from rapidfuzz import process, fuzz
 
-# Load processed dataset
-file_path = "/Users/jyoshnamaruvada/Desktop/MyProjects/processed_jobs.csv"
-df = pd.read_csv(file_path)
+# =========================
+# LOAD DATA
+# =========================
+# Make sure your dataset has 'clean_title' column
+df = pd.read_csv("your_dataset.csv")
 
-# -----------------------------
-# BUILD QUERY LIST
-# -----------------------------
-# Use job titles as suggestions
-titles = df['clean_title'].dropna().tolist()
+# Clean titles
+titles = df['clean_title'].dropna().str.lower().tolist()
 
-# Count frequency of titles
+# Count frequency
 title_freq = Counter(titles)
 
-# -----------------------------
-# AUTO-COMPLETE FUNCTION
-# -----------------------------
-def autocomplete(prefix, top_n=5):
-    prefix = prefix.lower()
+# =========================
+# AUTOCOMPLETE FUNCTION
+# =========================
+def autocomplete(query, top_n=5):
+    query = query.lower()
 
-    # Find matching titles
-    matches = [title for title in title_freq if title.startswith(prefix)]
+    # Get best matches using fuzzy matching
+    matches = process.extract(
+        query,
+        title_freq.keys(),
+        scorer=fuzz.token_sort_ratio,
+        limit=top_n
+    )
 
-    # Sort by frequency
-    matches = sorted(matches, key=lambda x: title_freq[x], reverse=True)
+    # Extract only titles
+    suggestions = [match[0] for match in matches]
 
-    return matches[:top_n]
+    return suggestions
 
-# -----------------------------
-# TEST
-# -----------------------------
-queries = ["da", "soft", "data s", "eng"]
 
-for q in queries:
-    print(f"\nSuggestions for '{q}':")
-    print(autocomplete(q))
+# =========================
+# CORRECT QUERY FUNCTION
+# =========================
+def correct_query(query):
+    query = query.lower()
+
+    best_match = process.extractOne(
+        query,
+        title_freq.keys(),
+        scorer=fuzz.token_sort_ratio
+    )
+
+    if best_match:
+        return best_match[0]
+    return query
+
+
+# =========================
+# TESTING
+# =========================
+if __name__ == "__main__":
+
+    queries = ["dta anlyts", "soft eng", "data scntist", "machin learn"]
+
+    for q in queries:
+        print("\nUser Query:", q)
+
+        corrected = correct_query(q)
+        print("Corrected Query:", corrected)
+
+        suggestions = autocomplete(q)
+        print("Suggestions:")
+        for s in suggestions:
+            print("-", s)

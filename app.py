@@ -7,7 +7,6 @@ import streamlit as st
 # -----------------------------
 # LOAD DATA
 # -----------------------------
-# df = pd.read_csv("/Users/jyoshnamaruvada/Desktop/MyProjects/intelligent_job_search_system/processed_jobs.csv")
 df = pd.read_csv("processed_jobs.csv")
 
 
@@ -98,19 +97,38 @@ def search_jobs(query):
 # -----------------------------
 # STREAMLIT UI
 # -----------------------------
+import streamlit as st
+import pandas as pd
+
+from Spell_Correction import correct_query
+from Auto_Complete import autocomplete
+
+# Load data
+df = pd.read_csv("processed_jobs.csv")
+vocab = pd.read_csv("vocabulary.csv")["word"].tolist()
+
+# Title
 st.title("🔍 Intelligent Job Search System")
 
+# Input
 query = st.text_input("Enter job search:")
 
 if query:
-    corrected = correct_query(query)
-    st.write("✅ Corrected Query:", corrected)
+    # 🔥 Step 1: Correct query
+    corrected_query = correct_query(query, vocab)
 
-    st.write("💡 Suggestions:")
-    suggestions = autocomplete(query)
-    for s in suggestions:
-        st.write("-", s)
+    st.success(f"Corrected Query: {corrected_query}")
 
-    st.write("📊 Top Jobs:")
-    results = search_jobs(corrected)
-    st.dataframe(results)
+    # 🔥 Step 2: ALWAYS use corrected query
+    suggestions = autocomplete(corrected_query, vocab)
+
+    if suggestions:
+        st.subheader("💡 Suggestions:")
+        for s in suggestions:
+            st.write(f"- {s}")
+
+    # 🔥 Step 3: Filter jobs
+    results = df[df['jobtitle'].str.contains(corrected_query, case=False, na=False)]
+
+    st.subheader("📊 Top Jobs:")
+    st.dataframe(results.head(5))
