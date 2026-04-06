@@ -28,6 +28,7 @@ def search_jobs(query):
     top_indices = similarity.argsort()[-5:][::-1]
     return df.iloc[top_indices][['company', 'jobtitle', 'location']]
 
+
 ## =========================
 # STREAMLIT UI
 # =========================
