@@ -31,26 +31,37 @@ def search_jobs(query):
 # =========================
 # STREAMLIT UI
 # =========================
+# =========================
+# STREAMLIT UI
+# =========================
 st.title("🔍 Intelligent Job Search System")
 
 query = st.text_input("Enter job search:")
 
-if query:
-    # ✅ STEP 1: CORRECT SPELLING
-    corrected = correct_query(query)
-    st.write("✅ Corrected Query:", corrected)
+# Default selected query
+selected_query = query
 
-    # ✅ STEP 2: USE CORRECTED QUERY FOR SUGGESTIONS
-    st.write("💡 Suggestions:")
-    suggestions = autocomplete(corrected)
+# -----------------------------
+# LIVE SUGGESTIONS (while typing)
+# -----------------------------
+if query:
+    suggestions = autocomplete(query)
 
     if suggestions:
-        for s in suggestions:
-            st.write("-", s)
-    else:
-        st.write("No suggestions found")
+        st.write("💡 Suggestions (click one):")
 
-    # ✅ STEP 3: SEARCH USING CORRECTED QUERY
+        for s in suggestions:
+            if st.button(s):
+                selected_query = s   # user clicked suggestion
+
+# -----------------------------
+# FINAL PROCESSING
+# -----------------------------
+if selected_query:
+    corrected = correct_query(selected_query)
+
+    st.write("✅ Corrected Query:", corrected)
+
     st.write("📊 Top Jobs:")
     results = search_jobs(corrected)
     st.dataframe(results)
